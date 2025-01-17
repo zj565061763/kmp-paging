@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lib_paging_append_load_error">Load error, click to retry</string>
+    <string name="lib_paging_append_no_more_data">No more data</string>
+</resources>
