@@ -4,16 +4,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,10 +25,8 @@ import com.sd.lib.kmp.paging.modifier
 import com.sd.lib.kmp.paging.replaceAll
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RouteSampleLazyColumn(
-  modifier: Modifier = Modifier,
   onClickBack: () -> Unit,
 ) {
   val paging = remember {
@@ -47,24 +38,11 @@ fun RouteSampleLazyColumn(
 
   val coroutineScope = rememberCoroutineScope()
 
-  Scaffold(
-    modifier = modifier.fillMaxSize(),
-    topBar = {
-      TopAppBar(
-        title = { Text(text = "SampleLazyColumn") },
-        navigationIcon = {
-          IconButton(onClick = onClickBack) {
-            Icon(
-              imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-              contentDescription = "Back",
-            )
-          }
-        },
-      )
-    },
-  ) { padding ->
+  RouteScaffold(
+    title = "SampleLazyColumn",
+    onClickBack = onClickBack,
+  ) {
     Content(
-      modifier = Modifier.fillMaxSize().padding(padding),
       paging = paging.presenter(),
       onClickItem = { item ->
         coroutineScope.launch {

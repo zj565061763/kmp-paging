@@ -22,19 +22,13 @@ fun App() {
         )
       }
       composable<AppRoute.SampleLazyColumn> {
-        RouteSampleLazyColumn(
-          onClickBack = { navController.popBackStack() }
-        )
+        RouteSampleLazyColumn(onClickBack = { navController.popBackStack() })
       }
       composable<AppRoute.SampleLazyGrid> {
-        RouteSampleLazyGrid(
-          onClickBack = { navController.popBackStack() }
-        )
+        RouteSampleLazyGrid(onClickBack = { navController.popBackStack() })
       }
       composable<AppRoute.SampleLazyStaggeredGrid> {
-        RouteSampleLazyStaggeredGrid(
-          onClickBack = { navController.popBackStack() }
-        )
+        RouteSampleLazyStaggeredGrid(onClickBack = { navController.popBackStack() })
       }
     }
   }

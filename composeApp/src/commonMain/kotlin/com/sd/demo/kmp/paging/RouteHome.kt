@@ -12,25 +12,18 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun RouteHome(
-  modifier: Modifier = Modifier,
   onClickSampleLazyColumn: () -> Unit,
   onClickSampleLazyGrid: () -> Unit,
   onClickSampleLazyStaggeredGrid: () -> Unit,
 ) {
-  Scaffold(modifier = modifier.fillMaxSize()) { padding ->
+  Scaffold { padding ->
     Column(
       modifier = Modifier.fillMaxSize().padding(padding),
       horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-      Button(onClick = onClickSampleLazyColumn) {
-        Text(text = "RouteSampleLazyColumn")
-      }
-      Button(onClick = onClickSampleLazyGrid) {
-        Text(text = "RouteSampleLazyGrid")
-      }
-      Button(onClick = onClickSampleLazyStaggeredGrid) {
-        Text(text = "RouteSampleLazyStaggeredGrid")
-      }
+      Button(onClick = onClickSampleLazyColumn) { Text(text = "RouteSampleLazyColumn") }
+      Button(onClick = onClickSampleLazyGrid) { Text(text = "RouteSampleLazyGrid") }
+      Button(onClick = onClickSampleLazyStaggeredGrid) { Text(text = "RouteSampleLazyStaggeredGrid") }
     }
   }
 }
