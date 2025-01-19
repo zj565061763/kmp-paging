@@ -1,8 +1,6 @@
 package com.sd.lib.kmp.paging
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -150,18 +148,21 @@ private class PagingImpl<Key : Any, Value : Any>(
   }
 
   /** 加载分页数据，并返回总数据 */
-  private suspend fun loadAndHandle(loadParams: LoadParams<Key>): Result<Pair<LoadResult.Page<Key, Value>, List<Value>>> {
+  private suspend fun FMutator.MutateScope.loadAndHandle(loadParams: LoadParams<Key>)
+    : Result<Pair<LoadResult.Page<Key, Value>, List<Value>>> {
     return runCatching {
-      val loadResult = pagingSource.load(loadParams).also { currentCoroutineContext().ensureActive() }
+      val loadResult = pagingSource.load(loadParams).also { ensureMutateActive() }
       when (loadResult) {
         is LoadResult.None -> throw CancellationException()
         is LoadResult.Page -> {
-          val items = pagingDataHandler.handlePageData(
+          pagingDataHandler.handlePageData(
             totalData = state.items,
             params = loadParams,
             pageData = loadResult.data,
-          ).also { currentCoroutineContext().ensureActive() }
-          loadResult to items
+          ).let { items ->
+            ensureMutateActive()
+            loadResult to items
+          }
         }
       }
     }
