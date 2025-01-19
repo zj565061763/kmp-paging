@@ -34,7 +34,6 @@ kotlin {
       implementation(compose.material3)
       implementation(compose.components.resources)
       implementation(compose.components.uiToolingPreview)
-      implementation(libs.kmp.sd.mutator)
     }
     commonTest.dependencies {
       implementation(libs.kmp.kotlin.test)

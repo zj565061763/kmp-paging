@@ -1,6 +1,5 @@
 package com.sd.lib.kmp.paging
 
-import com.sd.lib.kmp.mutator.Mutator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -62,7 +61,7 @@ private class PagingImpl<Key : Any, Value : Any>(
   private val pagingSource: PagingSource<Key, Value>,
   private val pagingDataHandler: PagingDataHandler<Key, Value>,
 ) : FPaging<Value> {
-  private val _mutator = Mutator()
+  private val _mutator = FMutator()
   private val _stateFlow = MutableStateFlow(PagingState<Value>())
 
   private var _nextKey: Key? = null

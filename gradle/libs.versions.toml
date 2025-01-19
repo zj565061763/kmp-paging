@@ -23,8 +23,6 @@ kmp-kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "
 kmp-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kmp-coroutines" }
 kmp-cash-turbine = "app.cash.turbine:turbine:1.2.0"
 
-kmp-sd-mutator = "io.github.zj565061763.kmp:mutator:1.0.1"
-
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
