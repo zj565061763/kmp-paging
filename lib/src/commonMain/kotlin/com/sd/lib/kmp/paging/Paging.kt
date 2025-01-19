@@ -196,12 +196,6 @@ private class Mutator {
     return doMutate(block)
   }
 
-  suspend fun cancelMutate() {
-    _jobMutex.withLock {
-      _job?.cancelAndJoin()
-    }
-  }
-
   private suspend fun <R> mutate(
     onStart: () -> Unit,
     block: suspend MutateScope.() -> R,
