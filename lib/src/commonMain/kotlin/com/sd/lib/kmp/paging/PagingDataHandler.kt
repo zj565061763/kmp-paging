@@ -6,7 +6,7 @@ import kotlinx.coroutines.withContext
 
 interface PagingDataHandler<Key : Any, Value : Any> {
   /**
-   * 处理分页数据并返回总数据，主线程执行
+   * 处理分页数据并返回总数据
    *
    * @param totalData 总数据
    * @param params 分页加载参数

@@ -1,11 +1,9 @@
 package com.sd.lib.kmp.paging
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 
 interface Paging<T : Any>
@@ -29,7 +27,7 @@ interface FPaging<T : Any> : Paging<T> {
   suspend fun append()
 
   /**
-   * 修改数据，[block]在主线程执行，[block]中不允许再调用[modify]，否则会抛异常
+   * 修改数据
    */
   suspend fun modify(block: suspend (List<T>) -> List<T>)
 }
@@ -59,7 +57,7 @@ private class PagingImpl<Key : Any, Value : Any>(
   private val pagingSource: PagingSource<Key, Value>,
   private val pagingDataHandler: PagingDataHandler<Key, Value>,
 ) : FPaging<Value> {
-  private val _mutator = FMutator()
+  private val _mutator = Mutator()
   private val _stateFlow = MutableStateFlow(PagingState<Value>())
 
   private var _nextKey: Key? = null
@@ -68,14 +66,13 @@ private class PagingImpl<Key : Any, Value : Any>(
   override val stateFlow: StateFlow<PagingState<Value>> get() = _stateFlow.asStateFlow()
 
   override suspend fun refresh() {
-    withContext(Dispatchers.Main) {
+    _mutator.mutate {
       doRefresh()
     }
   }
 
   override suspend fun append() {
-    withContext(Dispatchers.Main) {
-      if (_mutator.isMutating()) throw CancellationException()
+    _mutator.tryMutate {
       if (state.items.isEmpty()) {
         doRefresh()
       } else {
@@ -85,70 +82,64 @@ private class PagingImpl<Key : Any, Value : Any>(
   }
 
   override suspend fun modify(block: suspend (List<Value>) -> List<Value>) {
-    withContext(Dispatchers.Main) {
-      _mutator.effect {
-        val newItems = block(state.items)
-        _stateFlow.update { it.copy(items = newItems) }
+    _mutator.effect {
+      val newItems = block(state.items)
+      _stateFlow.update { it.copy(items = newItems) }
+    }
+  }
+
+  private suspend fun Mutator.MutateScope.doRefresh() {
+    val oldLoadState = state.refreshLoadState.also { check(it !is LoadState.Loading) }
+    _stateFlow.update { it.copy(refreshLoadState = LoadState.Loading) }
+    loadAndHandle(LoadParams.Refresh(refreshKey))
+      .onSuccess { data ->
+        val (loadResult, items) = data
+        _nextKey = loadResult.nextKey
+        _stateFlow.update {
+          it.copy(
+            items = items,
+            refreshLoadState = LoadState.NotLoading.Complete,
+            appendLoadState = if (loadResult.nextKey == null) LoadState.NotLoading.Complete else LoadState.NotLoading.Incomplete,
+          )
+        }
       }
-    }
+      .onFailure { error ->
+        if (error is CancellationException) {
+          _stateFlow.update { it.copy(refreshLoadState = oldLoadState) }
+          throw error
+        } else {
+          _stateFlow.update { it.copy(refreshLoadState = LoadState.Error(error)) }
+        }
+      }
   }
 
-  private suspend fun doRefresh() {
-    _mutator.mutate {
-      val oldLoadState = state.refreshLoadState.also { check(it !is LoadState.Loading) }
-      _stateFlow.update { it.copy(refreshLoadState = LoadState.Loading) }
-      loadAndHandle(LoadParams.Refresh(refreshKey))
-        .onSuccess { data ->
-          val (loadResult, items) = data
-          _nextKey = loadResult.nextKey
-          _stateFlow.update {
-            it.copy(
-              items = items,
-              refreshLoadState = LoadState.NotLoading.Complete,
-              appendLoadState = if (loadResult.nextKey == null) LoadState.NotLoading.Complete else LoadState.NotLoading.Incomplete,
-            )
-          }
-        }
-        .onFailure { error ->
-          if (error is CancellationException) {
-            _stateFlow.update { it.copy(refreshLoadState = oldLoadState) }
-            throw error
-          } else {
-            _stateFlow.update { it.copy(refreshLoadState = LoadState.Error(error)) }
-          }
-        }
-    }
-  }
-
-  private suspend fun doAppend() {
+  private suspend fun Mutator.MutateScope.doAppend() {
     val appendKey = _nextKey ?: return
-    _mutator.mutate {
-      val oldLoadState = state.appendLoadState.also { check(it !is LoadState.Loading) }
-      _stateFlow.update { it.copy(appendLoadState = LoadState.Loading) }
-      loadAndHandle(LoadParams.Append(appendKey))
-        .onSuccess { data ->
-          val (loadResult, items) = data
-          loadResult.nextKey?.also { _nextKey = it }
-          _stateFlow.update {
-            it.copy(
-              items = items,
-              appendLoadState = if (loadResult.nextKey == null) LoadState.NotLoading.Complete else LoadState.NotLoading.Incomplete,
-            )
-          }
+    val oldLoadState = state.appendLoadState.also { check(it !is LoadState.Loading) }
+    _stateFlow.update { it.copy(appendLoadState = LoadState.Loading) }
+    loadAndHandle(LoadParams.Append(appendKey))
+      .onSuccess { data ->
+        val (loadResult, items) = data
+        loadResult.nextKey?.also { _nextKey = it }
+        _stateFlow.update {
+          it.copy(
+            items = items,
+            appendLoadState = if (loadResult.nextKey == null) LoadState.NotLoading.Complete else LoadState.NotLoading.Incomplete,
+          )
         }
-        .onFailure { error ->
-          if (error is CancellationException) {
-            _stateFlow.update { it.copy(appendLoadState = oldLoadState) }
-            throw error
-          } else {
-            _stateFlow.update { it.copy(appendLoadState = LoadState.Error(error)) }
-          }
+      }
+      .onFailure { error ->
+        if (error is CancellationException) {
+          _stateFlow.update { it.copy(appendLoadState = oldLoadState) }
+          throw error
+        } else {
+          _stateFlow.update { it.copy(appendLoadState = LoadState.Error(error)) }
         }
-    }
+      }
   }
 
   /** 加载分页数据，并返回总数据 */
-  private suspend fun FMutator.MutateScope.loadAndHandle(loadParams: LoadParams<Key>)
+  private suspend fun Mutator.MutateScope.loadAndHandle(loadParams: LoadParams<Key>)
     : Result<Pair<LoadResult.Page<Key, Value>, List<Value>>> {
     return runCatching {
       val loadResult = pagingSource.load(loadParams).also { ensureMutateActive() }

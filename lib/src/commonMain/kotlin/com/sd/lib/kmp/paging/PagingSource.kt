@@ -11,7 +11,7 @@ abstract class KeyIntPagingSource<Value : Any> : PagingSource<Int, Value>() {
   }
 
   /**
-   * 加载并返回分页数据列表，主线程执行
+   * 加载并返回分页数据列表
    * - 返回空列表，表示没有下一页数据
    * - 返回null，表示本次加载无效
    */
@@ -25,7 +25,7 @@ abstract class KeyIntPagingSource<Value : Any> : PagingSource<Int, Value>() {
  */
 abstract class PagingSource<Key : Any, Value : Any> {
   /**
-   * 根据参数[params]加载数据，并返回结果[LoadResult]，主线程执行
+   * 根据参数[params]加载数据，并返回结果[LoadResult]
    */
   abstract suspend fun load(params: LoadParams<Key>): LoadResult<Key, Value>
 }

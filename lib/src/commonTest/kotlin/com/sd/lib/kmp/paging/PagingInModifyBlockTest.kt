@@ -20,7 +20,7 @@ class PagingInModifyBlockTest : MainDispatcherTest() {
       runCatching {
         paging.modify { listOf("b") }
       }.also {
-        assertEquals("Already in Effect", it.exceptionOrNull()!!.message)
+        assertEquals("Nested invoke", it.exceptionOrNull()!!.message)
       }
       listOf("a")
     }
@@ -34,7 +34,7 @@ class PagingInModifyBlockTest : MainDispatcherTest() {
       runCatching {
         paging.refresh()
       }.also {
-        assertEquals("Already in Effect", it.exceptionOrNull()!!.message)
+        assertEquals("Nested invoke", it.exceptionOrNull()!!.message)
       }
       listOf("a")
     }
@@ -48,7 +48,7 @@ class PagingInModifyBlockTest : MainDispatcherTest() {
       runCatching {
         paging.append()
       }.also {
-        assertEquals("Already in Effect", it.exceptionOrNull()!!.message)
+        assertEquals("Nested invoke", it.exceptionOrNull()!!.message)
       }
       listOf("a")
     }
