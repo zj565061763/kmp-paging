@@ -43,6 +43,10 @@ kotlin {
   }
 }
 
+compose.resources {
+  packageOfResClass = "com.sd.lib.kmp.paging.generated.resources"
+}
+
 android {
   namespace = "com.sd.lib.kmp.paging"
   compileSdk = 34

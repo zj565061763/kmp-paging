@@ -15,9 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sd.lib.kmp.paging.LoadState
-import kmp_paging.lib.generated.resources.Res
-import kmp_paging.lib.generated.resources.lib_paging_append_load_error
-import kmp_paging.lib.generated.resources.lib_paging_append_no_more_data
+import com.sd.lib.kmp.paging.generated.resources.Res
+import com.sd.lib.kmp.paging.generated.resources.lib_paging_append_load_error
+import com.sd.lib.kmp.paging.generated.resources.lib_paging_append_no_more_data
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
