@@ -60,6 +60,8 @@ fun <Key : Any, Value : Any> FPaging(
   )
 }
 
+fun <T : Any> FPaging<T>.asPaging(): Paging<T> = this
+
 //-------------------- impl --------------------
 
 private class PagingImpl<Key : Any, Value : Any>(
