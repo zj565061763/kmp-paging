@@ -28,13 +28,19 @@ interface FPaging<T : Any> : Paging<T> {
   /**
    * 刷新数据，如果当前正在[refresh]或者[append]，会先取消再刷新
    */
-  suspend fun refresh()
+  suspend fun refresh(
+    /** 是否通知加载中状态 */
+    notifyLoading: Boolean = true,
+  )
 
   /**
    * 加载尾部数据，如果当前正在[refresh]或者[append]，会抛出[CancellationException]，
    * 如果调用时数据为空，会转发到[refresh]
    */
-  suspend fun append()
+  suspend fun append(
+    /** 是否通知加载中状态 */
+    notifyLoading: Boolean = true,
+  )
 
   /**
    * 修改数据
@@ -75,18 +81,18 @@ private class PagingImpl<Key : Any, Value : Any>(
   override val state: PagingState<Value> get() = _stateFlow.value
   override val stateFlow: StateFlow<PagingState<Value>> get() = _stateFlow.asStateFlow()
 
-  override suspend fun refresh() {
+  override suspend fun refresh(notifyLoading: Boolean) {
     _mutator.mutate {
-      doRefresh()
+      doRefresh(notifyLoading = notifyLoading)
     }
   }
 
-  override suspend fun append() {
+  override suspend fun append(notifyLoading: Boolean) {
     _mutator.tryMutate {
       if (state.items.isEmpty()) {
-        doRefresh()
+        doRefresh(notifyLoading = notifyLoading)
       } else {
-        doAppend()
+        doAppend(notifyLoading = notifyLoading)
       }
     }
   }
@@ -98,9 +104,13 @@ private class PagingImpl<Key : Any, Value : Any>(
     }
   }
 
-  private suspend fun Mutator.MutateScope.doRefresh() {
+  private suspend fun Mutator.MutateScope.doRefresh(notifyLoading: Boolean) {
     val oldLoadState = state.refreshLoadState.also { check(it !is LoadState.Loading) }
-    _stateFlow.update { it.copy(refreshLoadState = LoadState.Loading) }
+
+    if (notifyLoading) {
+      _stateFlow.update { it.copy(refreshLoadState = LoadState.Loading) }
+    }
+
     loadAndHandle(LoadParams.Refresh(refreshKey))
       .onSuccess { data ->
         val (loadResult, items) = data
@@ -123,10 +133,14 @@ private class PagingImpl<Key : Any, Value : Any>(
       }
   }
 
-  private suspend fun Mutator.MutateScope.doAppend() {
+  private suspend fun Mutator.MutateScope.doAppend(notifyLoading: Boolean) {
     val appendKey = _nextKey ?: return
     val oldLoadState = state.appendLoadState.also { check(it !is LoadState.Loading) }
-    _stateFlow.update { it.copy(appendLoadState = LoadState.Loading) }
+
+    if (notifyLoading) {
+      _stateFlow.update { it.copy(appendLoadState = LoadState.Loading) }
+    }
+
     loadAndHandle(LoadParams.Append(appendKey))
       .onSuccess { data ->
         val (loadResult, items) = data
