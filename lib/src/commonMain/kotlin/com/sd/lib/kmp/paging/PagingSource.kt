@@ -1,19 +1,22 @@
 package com.sd.lib.kmp.paging
 
 /** 页码类型为[Int]的数据源 */
-abstract class KeyIntPagingSource<Value : Any> : PagingSource<Int, Value>() {
+abstract class KeyIntPagingSource<Value : Any>(
+  private val minPageSize: Int = 1,
+) : PagingSource<Int, Value>() {
   final override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Value> {
     val data = loadImpl(params) ?: return LoadResult.None()
+    val hasNextPage = data.size >= minPageSize
     return LoadResult.Page(
       data = data,
-      nextKey = if (data.isEmpty()) null else params.key + 1,
+      nextKey = if (hasNextPage) params.key + 1 else null,
     )
   }
 
   /**
    * 加载并返回分页数据列表
-   * - 返回空列表，表示没有下一页数据
    * - 返回null，表示本次加载无效
+   * - 返回列表数量小于[minPageSize]，表示没有下一页数据
    */
   protected abstract suspend fun loadImpl(params: LoadParams<Int>): List<Value>?
 }
