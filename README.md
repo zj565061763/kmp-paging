@@ -7,5 +7,5 @@ Compose Multiplatform paging library.
 # Gradle
 
 ```kotlin
-implementation("io.github.zj565061763.kmp:paging:1.0.0-alpha06")
+implementation("io.github.zj565061763.kmp:paging:1.0.0-alpha07")
 ```
