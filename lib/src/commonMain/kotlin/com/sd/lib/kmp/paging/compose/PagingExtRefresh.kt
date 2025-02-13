@@ -12,11 +12,10 @@ fun PagingPresenter<*>.UiRefreshSlot(
   /** 数据为空 */
   stateEmpty: @Composable () -> Unit = {},
 ) {
-  if (isEmpty) {
-    when (val loadState = refreshLoadState) {
-      is LoadState.Loading -> stateLoading()
-      is LoadState.Error -> stateError(loadState.error)
-      is LoadState.NotLoading -> if (loadState.endOfPaginationReached) stateEmpty()
-    }
+  if (!isEmpty) return
+  when (val loadState = refreshLoadState) {
+    is LoadState.Loading -> stateLoading()
+    is LoadState.Error -> stateError(loadState.error)
+    is LoadState.NotLoading -> if (loadState.endOfPaginationReached) stateEmpty()
   }
 }
