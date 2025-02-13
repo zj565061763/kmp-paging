@@ -1,6 +1,10 @@
 package com.sd.lib.kmp.paging.compose
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.sd.lib.kmp.paging.LoadState
 
 @Composable
@@ -13,9 +17,21 @@ fun PagingPresenter<*>.UiRefreshSlot(
   stateEmpty: @Composable () -> Unit = {},
 ) {
   if (!isEmpty) return
-  when (val loadState = refreshLoadState) {
-    is LoadState.Loading -> stateLoading()
-    is LoadState.Error -> stateError(loadState.error)
-    is LoadState.NotLoading -> if (loadState.endOfPaginationReached) stateEmpty()
+
+  var noneLoadingState: LoadState? by remember { mutableStateOf(null) }
+
+  val loadState = refreshLoadState
+  if (loadState is LoadState.Loading) {
+    stateLoading()
+  } else {
+    noneLoadingState = loadState
+  }
+
+  noneLoadingState?.also { state ->
+    when (state) {
+      is LoadState.Error -> stateError(state.error)
+      is LoadState.NotLoading -> if (state.endOfPaginationReached) stateEmpty()
+      is LoadState.Loading -> error("Require none loading state")
+    }
   }
 }
