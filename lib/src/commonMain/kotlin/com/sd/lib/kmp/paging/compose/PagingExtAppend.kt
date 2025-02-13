@@ -54,12 +54,11 @@ fun PagingPresenter<*>.UiAppendSlot(
   /** 没有更多数据 */
   stateNoMoreData: @Composable () -> Unit = {},
 ) {
-  if (!isEmpty) {
-    when (val loadState = appendLoadState) {
-      is LoadState.Loading -> stateLoading()
-      is LoadState.Error -> stateError(loadState.error)
-      is LoadState.NotLoading -> if (loadState.endOfPaginationReached) stateNoMoreData()
-    }
+  if (isEmpty) return
+  when (val loadState = appendLoadState) {
+    is LoadState.Loading -> stateLoading()
+    is LoadState.Error -> stateError(loadState.error)
+    is LoadState.NotLoading -> if (loadState.endOfPaginationReached) stateNoMoreData()
   }
 }
 
