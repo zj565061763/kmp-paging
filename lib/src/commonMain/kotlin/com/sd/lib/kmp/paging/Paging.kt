@@ -46,6 +46,11 @@ interface FPaging<T : Any> : Paging<T> {
    * 修改数据
    */
   suspend fun modify(block: suspend (List<T>) -> List<T>)
+
+  /**
+   * 重置状态
+   */
+  suspend fun reset()
 }
 
 /**
@@ -101,6 +106,12 @@ private class PagingImpl<Key : Any, Value : Any>(
     _mutator.effect {
       val newItems = block(state.items)
       _stateFlow.update { it.copy(items = newItems) }
+    }
+  }
+
+  override suspend fun reset() {
+    _mutator.mutate {
+      _stateFlow.update { PagingState() }
     }
   }
 
