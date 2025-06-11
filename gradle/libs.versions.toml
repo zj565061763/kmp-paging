@@ -1,23 +1,21 @@
 [versions]
-agp = "8.5.2"
-kotlin = "2.0.21"
+agp = "8.7.3"
+kotlin = "2.1.21"
 
-androidx-activityCompose = "1.9.3"
-
-compose-multiplatform = "1.7.3"
-kmp-lifecycle = "2.8.4"
-kmp-coroutines = "1.9.0"
+compose-multiplatform = "1.8.1"
+kmp-lifecycle = "2.9.0"
+kmp-coroutines = "1.10.2"
 
 maven-publish = "0.30.0"
 
 [libraries]
-androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
+androidx-activity-compose = "androidx.activity:activity-compose:1.10.1"
 
 kmp-androidx-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "kmp-lifecycle" }
 kmp-androidx-lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "kmp-lifecycle" }
 
-kmp-androidx-navigation-compose = "org.jetbrains.androidx.navigation:navigation-compose:2.8.0-alpha10"
-kmp-kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3"
+kmp-androidx-navigation-compose = "org.jetbrains.androidx.navigation:navigation-compose:2.9.0-beta02"
+kmp-kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1"
 
 kmp-kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kmp-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kmp-coroutines" }
